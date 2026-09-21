@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MBTI Team Match</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+:root{
+  --bg:#F4F6F1; --card:#FFFFFF; --ink:#1B2420; --muted:#5E6B64; --line:#DCE3DC;
+  --accent:#E8553D; --accent-ink:#FFFFFF; --soft:#EAEFE8;
+  --nt:#7A5BC7; --nf:#2F9E6B; --sj:#2B7FB8; --sp:#D69A12;
+  --good:#2F9E6B; --warn:#D69A12; --bad:#D2452F;
+  --shadow:0 1px 2px rgba(27,36,32,.06),0 8px 24px rgba(27,36,32,.07);
+  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --body:"Figtree",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121815; --card:#1B231F; --ink:#E9EFEA; --muted:#9AA8A0; --line:#2C3832;
+    --accent:#FF7358; --accent-ink:#1B120F; --soft:#232D28;
+    --nt:#A58BEF; --nf:#4DC48E; --sj:#5AA8DD; --sp:#F0B73A;
+    --good:#4DC48E; --warn:#F0B73A; --bad:#FF7358;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121815; --card:#1B231F; --ink:#E9EFEA; --muted:#9AA8A0; --line:#2C3832;
+  --accent:#FF7358; --accent-ink:#1B120F; --soft:#232D28;
+  --nt:#A58BEF; --nf:#4DC48E; --sj:#5AA8DD; --sp:#F0B73A;
+  --good:#4DC48E; --warn:#F0B73A; --bad:#FF7358;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55}
+.wrap{max-width:1040px;margin:0 auto;padding-inline:16px;padding-block:32px 64px}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance;letter-spacing:-.01em}
+p{margin:0}
+.eyebrow{font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.btn{font:600 16px var(--body);border:0;border-radius:999px;padding:14px 26px;background:var(--accent);color:var(--accent-ink);cursor:pointer;transition:transform .15s}
+.btn:hover{transform:translateY(-2px)}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.btn:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.card{background:var(--card);border-radius:20px;box-shadow:var(--shadow);padding:22px}
+.type{font-family:var(--mono);font-weight:700;letter-spacing:.06em}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media (max-width:760px){.grid3{grid-template-columns:1fr}}
+.stack{display:flex;flex-direction:column;gap:16px}
+
+/* landing */
+.hero{display:grid;grid-template-columns:1.2fr 1fr;gap:40px;align-items:center;padding-block:40px}
+@media (max-width:760px){.hero{grid-template-columns:1fr;gap:28px;padding-block:16px}}
+.hero h1{font-size:clamp(40px,7vw,72px);line-height:1;font-weight:800}
+.hero h1 em{font-style:normal;color:var(--accent)}
+.hero p{font-size:19px;color:var(--muted);max-width:32ch;margin-block:18px 28px}
+.tri{position:relative;aspect-ratio:1;max-width:100%;width:360px;justify-self:center}
+.tri svg{width:100%;height:100%}
+.chip{position:absolute;padding:10px 16px;border-radius:14px;color:#fff;font-family:var(--mono);font-weight:700;font-size:20px;box-shadow:var(--shadow);animation:bob 4s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-8px)}}
+@media (prefers-reduced-motion:reduce){.chip{animation:none}.btn{transition:none}}
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:8px;font-size:13px;color:var(--muted)}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:3px;background:var(--c);margin-right:6px;vertical-align:-1px}
+
+/* setup */
+.head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:24px}
+.head h2{font-size:clamp(30px,5vw,44px);font-weight:800}
+label{display:block;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:6px}
+input,select{width:100%;font:500 17px var(--body);color:var(--ink);background:var(--soft);border:1.5px solid transparent;border-radius:12px;padding:12px 14px}
+select{font-family:var(--mono);font-weight:700;letter-spacing:.06em;cursor:pointer}
+.member-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.avatar{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:20px;color:#fff;background:var(--c,var(--muted))}
+.field{margin-bottom:14px}
+.team-name{margin-bottom:16px;max-width:520px}
+.team-name input{font-family:var(--display);font-weight:700;font-size:20px}
+.team-title{font-size:clamp(34px,6vw,56px)!important;line-height:1.05;overflow-wrap:anywhere}
+.error{margin-top:18px;padding:12px 16px;border-radius:12px;background:color-mix(in srgb,var(--bad) 14%,transparent);color:var(--bad);font-weight:600}
+.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}
+.temp{font-size:12px;font-weight:600;color:var(--c)}
+
+/* results */
+.members{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media (max-width:560px){.members{grid-template-columns:1fr}}
+.member{display:flex;align-items:center;gap:14px;padding:16px 18px}
+.member b{display:block;font-size:18px;font-family:var(--display)}
+.team-score{display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:center;padding:28px;margin-block:20px 40px}
+@media (max-width:560px){.team-score{grid-template-columns:1fr;gap:14px}}
+.big{font-family:var(--display);font-weight:800;font-size:clamp(64px,12vw,112px);line-height:.9;font-variant-numeric:tabular-nums}
+.big small{font-size:.45em}
+.pill{display:inline-block;padding:5px 12px;border-radius:999px;font-size:13px;font-weight:700;background:color-mix(in srgb,var(--c) 16%,transparent);color:var(--c)}
+.bar{height:10px;border-radius:99px;background:var(--soft);overflow:hidden}
+.bar i{display:block;height:100%;border-radius:99px;background:var(--c)}
+.section{margin-top:40px}
+.section h3{font-size:26px;font-weight:700;margin-bottom:16px}
+.pair .names{font-family:var(--display);font-weight:700;font-size:19px}
+.pair .pct{font-family:var(--display);font-weight:800;font-size:48px;line-height:1;font-variant-numeric:tabular-nums;margin-block:12px 10px}
+.dims{display:flex;gap:6px;margin-block:14px}
+.dims span{flex:1;text-align:center;font-family:var(--mono);font-size:12px;padding:5px 0;border-radius:8px;background:var(--soft);color:var(--muted)}
+.dims span.same{background:color-mix(in srgb,var(--good) 18%,transparent);color:var(--good);font-weight:700}
+.kv{font-size:14px;margin-top:10px}
+.kv b{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+.note{padding:18px 20px;border-radius:16px;background:var(--card);border:1.5px solid var(--line)}
+.note h4{margin:0 0 6px;font-family:var(--display);font-size:18px}
+.note p{color:var(--muted);font-size:15px}
+.note.s h4::before{content:"+ ";color:var(--good)}
+.note.f h4::before{content:"! ";color:var(--warn)}
+.tips{counter-reset:t;list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+@media (max-width:640px){.tips{grid-template-columns:1fr}}
+.tips li{counter-increment:t;display:flex;gap:14px;align-items:flex-start;padding:16px 18px;background:var(--soft);border-radius:14px}
+.tips li::before{content:counter(t);flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--accent-ink);font-weight:700;font-size:14px}
+.disclaimer{margin-top:40px;font-size:13px;color:var(--muted)}
+.twins-head{display:flex;align-items:baseline;gap:8px;margin-bottom:14px}
+.twins-head b{font-family:var(--display);font-size:18px}
+.celebs{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:14px 10px}
+.celeb{text-align:center;font-size:13px;line-height:1.3}
+.celeb .ph{width:68px;height:68px;margin:0 auto 6px;border-radius:50%;overflow:hidden;display:grid;place-items:center;
+  background:color-mix(in srgb,var(--c) 18%,var(--card));color:var(--c);font-family:var(--display);font-weight:800;font-size:24px;
+  box-shadow:0 0 0 3px var(--card),0 0 0 5px color-mix(in srgb,var(--c) 45%,transparent)}
+.celeb .ph a{display:block;width:100%;height:100%}
+.celeb .ph img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 20%}
+.celeb small{display:block;color:var(--muted);font-size:11px}
+</style>
+
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/htm@3.1.1/dist/htm.umd.js"></script>
+<script>
+const { useState } = React;
+const html = htm.bind(React.createElement);
+
+const TYPES = ["ISTJ","ISFJ","INFJ","INTJ","ISTP","ISFP","INFP","INTP","ESTP","ESFP","ENFP","ENTP","ESTJ","ESFJ","ENFJ","ENTJ"];
+const SAMPLE = [{name:"Ryan",mbti:"INTJ"},{name:"Alice",mbti:"ENFP"},{name:"Jason",mbti:"ISTJ"}];
+const SAMPLE_NAME = "The Dream Team";
+const STORE = "mbti-team-match";
+const EMPTY_TEAM = [{name:"",mbti:""},{name:"",mbti:""},{name:"",mbti:""}];
+
+// Temperament group → colour token
+function group(t){
+  if(!t) return null;
+  if(t[1]==="N") return t[2]==="T" ? {c:"var(--nt)",n:"Analyst"} : {c:"var(--nf)",n:"Diplomat"};
+  return t[3]==="J" ? {c:"var(--sj)",n:"Sentinel"} : {c:"var(--sp)",n:"Explorer"};
+}
+
+// ---- Scoring (PRD §11) ----
+const DIMS = [
+  {i:0,key:"E/I",same:20,diff:12},
+  {i:1,key:"S/N",same:20,diff:8},
+  {i:2,key:"T/F",same:20,diff:10},
+  {i:3,key:"J/P",same:20,diff:6},
+];
+function compat(a,b){
+  return 20 + DIMS.reduce((s,d)=>s + (a[d.i]===b[d.i] ? d.same : d.diff),0);
+}
+function label(s){
+  if(s>=85) return {t:"Highly Aligned",c:"var(--good)"};
+  if(s>=75) return {t:"Strong Potential",c:"var(--good)"};
+  if(s>=65) return {t:"Mixed but Complementary",c:"var(--sj)"};
+  if(s>=55) return {t:"Different Working Styles",c:"var(--warn)"};
+  return {t:"Significant Style Differences",c:"var(--bad)"};
+}
+
+const SHARED = {
+  E:"Both energised by discussion, so ideas get voiced and tested quickly.",
+  I:"Both value focused, independent work and thoughtful preparation.",
+  N:"Shared big-picture thinking makes it easy to agree on vision.",
+  S:"Shared attention to facts and detail keeps the work grounded.",
+  T:"Both prefer objective, logic-first decisions, so debates stay efficient.",
+  F:"Both weigh people's feelings, creating a supportive working climate.",
+  J:"Both like plans and deadlines, so work gets finished on time.",
+  P:"Both stay flexible and adapt quickly when plans change.",
+};
+const COMPLEMENT = {
+  1:"Strategic or conceptual thinking combined with practical, hands-on detail.",
+  2:"Logical analysis balanced by awareness of people and impact.",
+  3:"Structure from one side, adaptability and fresh options from the other.",
+  0:"One brings outward energy, the other brings reflection and depth.",
+};
+const CHALLENGE = {
+  3:"Different preferences for structure versus spontaneity — deadlines may feel early to one and late to the other.",
+  1:"One focuses on the big picture, the other on concrete details — expect some talking past each other.",
+  2:"Logic-first versus people-first decisions may cause friction over feedback and priorities.",
+  0:"One thinks out loud, the other thinks before speaking — meetings may feel uneven.",
+};
+function pairText(a,b){
+  const same = DIMS.filter(d=>a[d.i]===b[d.i]);
+  const diffOrder = [3,1,2,0].filter(i=>a[i]!==b[i]);
+  // Mostly alike → lead with what they share; mostly different → lead with how they complement
+  let strength;
+  if(same.length===4) strength = "Near-identical working styles mean very little friction and fast agreement.";
+  else if(same.length===3) strength = SHARED[a[[1,3,2,0].find(i=>a[i]===b[i])]];
+  else strength = COMPLEMENT[[1,2,3,0].find(i=>a[i]!==b[i])];
+  const challenge = diffOrder.length ? CHALLENGE[diffOrder[0]]
+    : "Very similar styles can create shared blind spots — invite outside perspectives.";
+  const score = compat(a,b);
+  const interp = score>=85 ? "Naturally in sync on how work gets done."
+    : score>=75 ? "Enough common ground to move fast, with useful differences."
+    : score>=65 ? "Different approaches that can complement each other with some effort."
+    : "Quite different styles — clear agreements will matter.";
+  return {strength,challenge,interp};
+}
+
+// ---- Team-level insights ----
+function teamInsights(team){
+  const has = (i,l)=>team.some(m=>m.mbti[i]===l);
+  const mixed = i => new Set(team.map(m=>m.mbti[i])).size>1;
+  const strengths=[], friction=[], tips=[];
+
+  if(mixed(1)) strengths.push({h:"Diverse Thinking",p:"The team has both intuitive and sensing preferences, combining big-picture ideas with practical detail."});
+  else strengths.push(team[0].mbti[1]==="N"
+    ? {h:"Shared Vision",p:"Everyone leans intuitive, so the team aligns quickly on ideas, possibilities and long-term direction."}
+    : {h:"Grounded Delivery",p:"Everyone leans sensing, so the team stays realistic, detailed and focused on what works."});
+  if(mixed(2)) strengths.push({h:"Balanced Decision-Making",p:"Thinking and feeling preferences help the team weigh both logic and the impact on people."});
+  else strengths.push(team[0].mbti[2]==="T"
+    ? {h:"Clear-Headed Analysis",p:"A shared thinking preference keeps discussions objective and decisions efficient."}
+    : {h:"Strong Team Harmony",p:"A shared feeling preference builds trust, empathy and a supportive climate."});
+  if(has(3,"J")) strengths.push({h:"Strategic Execution",p:"Judging-oriented members help provide structure, milestones and follow-through."});
+  else strengths.push({h:"Adaptive Energy",p:"A perceiving-heavy team adapts quickly and stays open to better ideas late in the process."});
+
+  if(mixed(3)) friction.push({h:"Planning Style",p:"J-type members may prefer early decisions, while P-type members may want to keep options open."});
+  else if(team[0].mbti[3]==="P") friction.push({h:"Last-Minute Risk",p:"With no strong planner, deadlines can drift and decisions may stay open too long."});
+  else friction.push({h:"Rigidity",p:"Everyone likes a fixed plan, which can make pivoting uncomfortable when things change."});
+  if(mixed(0)) friction.push({h:"Communication",p:"Extroverted members may think aloud, while introverted members prefer time to process ideas first."});
+  else friction.push(team[0].mbti[0]==="E"
+    ? {h:"Airtime",p:"Three extroverts may talk over each other and leave little room for quiet reflection."}
+    : {h:"Silent Gaps",p:"Three introverts may hold back ideas, so important concerns can go unspoken."});
+  if(mixed(2)) friction.push({h:"Decision-Making",p:"T-types may focus on logic while F-types place greater weight on interpersonal considerations."});
+  else if(mixed(1)) friction.push({h:"Level of Detail",p:"N-types may jump to concepts while S-types want concrete facts and steps first."});
+
+  tips.push("Agree on deadlines, owners and responsibilities at the very start.");
+  tips.push(mixed(0)||team[0].mbti[0]==="I"
+    ? "Give everyone time to contribute — share the agenda before meetings so quieter members can prepare."
+    : "Use a round-robin so everyone gets uninterrupted time to speak.");
+  tips.push("Separate brainstorming from decision-making, so ideas are not judged too early.");
+  tips.push(mixed(2)
+    ? "When deciding, check both: “Does this make sense?” and “How will this affect people?”"
+    : "Use both written and verbal communication so nothing gets lost.");
+  return {strengths,friction,tips};
+}
+
+// ---- Celebrities by type (commonly cited online, unofficial) ----
+// Photos: freely licensed images hosted on Wikimedia Commons (missing/failed → initial)
+const CELEBS = {
+  INTJ:[["周杰倫","jay-chou"],["張一鳴","zhang-yiming","字節跳動創辦人"],["銀赫","eunhyuk","Super Junior"]],
+  INTP:[["劉亦菲","liu-yifei"],["馬化騰","pony-ma","騰訊創辦人"],["劉慈欣","liu-cixin","《三體》作者"]],
+  ENTJ:[["劉強東","richard-liu","京東創辦人"],["王興","wang-xing","美團創辦人"]],
+  ENTP:[["周鴻禕","zhou-hongyi","360創辦人"],["李泳知","lee-young-ji","韓國饒舌歌手"]],
+  INFJ:[["IU","iu","李知恩"],["宋慧喬","song-hye-kyo"],["車銀優","cha-eun-woo"],["桂綸鎂","gwei-lun-mei"]],
+  INFP:[["林俊傑","jj-lin"],["胡歌","hu-ge"],["葉舒華","yeh-shuhua","(G)I-DLE"],["張子楓","zhang-zifeng"]],
+  ENFJ:[["宋仲基","song-joong-ki"],["王嘉爾","jackson-wang"],["宋雨琦","song-yuqi","(G)I-DLE"]],
+  ENFP:[["劉德華","andy-lau"],["肖戰","xiao-zhan"],["楊紫","yang-zi"],["Sana","sana","TWICE"]],
+  ISTJ:[["李昌鎬","lee-chang-ho","圍棋大師"],["太陽","taeyang","BIGBANG"]],
+  ISFJ:[["太妍","taeyeon","少女時代"],["多賢","dahyun","TWICE"],["Wendy","wendy","Red Velvet"]],
+  ESTJ:[["韓佳人","han-ga-in"],["金俊秀","kim-junsu"]],
+  ESFJ:[["朴寶劍","park-bo-gum"],["J-Hope","j-hope","BTS"],["Lisa","lisa","BLACKPINK"]],
+  ISTP:[["安俞真","an-yujin","IVE"],["金采源","kim-chaewon","LE SSERAFIM"],["Suga","suga","BTS"]],
+  ISFP:[["周子瑜","tzuyu","TWICE"],["劉在錫","yoo-jae-suk"],["田柾國","jungkook","BTS"]],
+  ESTP:[["陸星材","yook-sungjae","BTOB"],["全昭旻","jeon-somin"]],
+  ESFP:[["許光漢","greg-hsu"],["王嘉爾","jackson-wang","早期測驗結果"],["潤娥","yoona","少女時代"]],
+};
+
+// Commons file page for attribution, derived from the thumbnail URL
+const PHOTOS = {
+  "jay-chou":"https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9b/%E5%91%A8%E6%9D%B0%E5%80%AB_Jay_Chou_in_2026.jpg/250px-%E5%91%A8%E6%9D%B0%E5%80%AB_Jay_Chou_in_2026.jpg",
+  "zhang-yiming":"https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e0/The_CEO_Magazine_Cover.jpg/250px-The_CEO_Magazine_Cover.jpg",
+  "eunhyuk":"https://thumb.wikimedia.org/wikipedia/commons/thumb/2/21/180502_%EC%9D%80%ED%98%81.jpg/250px-180502_%EC%9D%80%ED%98%81.jpg",
+  "liu-yifei":"https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f4/Liu_Yifei_attended_the_brand_event.jpg/250px-Liu_Yifei_attended_the_brand_event.jpg",
+  "pony-ma":"https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d6/%E9%A9%AC%E5%8C%96%E8%85%BE_Pony_Ma_2019.jpg/250px-%E9%A9%AC%E5%8C%96%E8%85%BE_Pony_Ma_2019.jpg",
+  "liu-cixin":"https://thumb.wikimedia.org/wikipedia/commons/thumb/0/09/Cixin_Liu_at_Worldcon_75%2C_Helsinki%2C_before_the_Hugo_Awards.jpg/250px-Cixin_Liu_at_Worldcon_75%2C_Helsinki%2C_before_the_Hugo_Awards.jpg",
+  "richard-liu":"https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bd/Liu_Qiangdong.jpg/250px-Liu_Qiangdong.jpg",
+  "wang-xing":"https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3f/Wang_Xing_in_2009.jpg/250px-Wang_Xing_in_2009.jpg",
+  "zhou-hongyi":"https://thumb.wikimedia.org/wikipedia/commons/thumb/6/67/Zhou_Hongyi-20250304.png/250px-Zhou_Hongyi-20250304.png",
+  "lee-young-ji":"https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f4/Lee_Young-ji_in_February_2026.png/250px-Lee_Young-ji_in_February_2026.png",
+  "iu":"https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2f/IU_at_Blue_Dragon_Series_Awards_on_18072025_%2810%29.png/250px-IU_at_Blue_Dragon_Series_Awards_on_18072025_%2810%29.png",
+  "song-hye-kyo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/5/53/Song_Hye_Kyo_2025_%EC%86%A1%ED%98%9C%EA%B5%90_04.jpg/250px-Song_Hye_Kyo_2025_%EC%86%A1%ED%98%9C%EA%B5%90_04.jpg",
+  "cha-eun-woo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d8/Cha_Eun-woo%2C_March_31%2C_2025.png/250px-Cha_Eun-woo%2C_March_31%2C_2025.png",
+  "gwei-lun-mei":"https://thumb.wikimedia.org/wikipedia/commons/thumb/c/ce/Gwei_Lun-mei_20220611.jpg/250px-Gwei_Lun-mei_20220611.jpg",
+  "jj-lin":"https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0b/JJ_Lin_at_Shaping_Hearts_Award_2025_ceremony.jpg/250px-JJ_Lin_at_Shaping_Hearts_Award_2025_ceremony.jpg",
+  "hu-ge":"https://thumb.wikimedia.org/wikipedia/commons/thumb/8/86/HUGE20161211BJ.jpg/250px-HUGE20161211BJ.jpg",
+  "yeh-shuhua":"https://thumb.wikimedia.org/wikipedia/commons/thumb/7/77/Shuhua_Yeh_portrait_at_TIFF_2026.jpg/250px-Shuhua_Yeh_portrait_at_TIFF_2026.jpg",
+  "zhang-zifeng":"https://upload.wikimedia.org/wikipedia/commons/7/7e/%E5%BC%A0%E5%AD%90%E6%9E%AB.png",
+  "song-joong-ki":"https://thumb.wikimedia.org/wikipedia/commons/thumb/1/13/Song_Joong-ki_at_Style_Icon_Asia_2016.jpg/250px-Song_Joong-ki_at_Style_Icon_Asia_2016.jpg",
+  "jackson-wang":"https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a3/Jackson_Wang_interviewed_for_POVJOV_02.png/250px-Jackson_Wang_interviewed_for_POVJOV_02.png",
+  "song-yuqi":"https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fa/20230630_Song_Yu-qi.jpg/250px-20230630_Song_Yu-qi.jpg",
+  "andy-lau":"https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bb/Andy_Lau_%E5%88%98%E5%BE%B7%E5%8D%8E%2C_Beijing_International_Film_Festival_%E5%8C%97%E4%BA%AC%E7%94%B5%E5%BD%B1%E8%8A%82%2C_2013_%28cropped%29.jpg/250px-Andy_Lau_%E5%88%98%E5%BE%B7%E5%8D%8E%2C_Beijing_International_Film_Festival_%E5%8C%97%E4%BA%AC%E7%94%B5%E5%BD%B1%E8%8A%82%2C_2013_%28cropped%29.jpg",
+  "xiao-zhan":"https://thumb.wikimedia.org/wikipedia/commons/thumb/1/15/Xiao_Zhan_at_the_Weibo_Night_Ceremony_January_11_2020.jpg/250px-Xiao_Zhan_at_the_Weibo_Night_Ceremony_January_11_2020.jpg",
+  "yang-zi":"https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6c/Yang_Zi_at_Ryo_band_promotion%2C_Wuhan_of_China%2C_12_April_2019.jpg/250px-Yang_Zi_at_Ryo_band_promotion%2C_Wuhan_of_China%2C_12_April_2019.jpg",
+  "sana":"https://thumb.wikimedia.org/wikipedia/commons/thumb/3/38/Sana_Minatozaki_in_April_2026.png/250px-Sana_Minatozaki_in_April_2026.png",
+  "lee-chang-ho":"https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fc/Lee_ChangHo.JPG/250px-Lee_ChangHo.JPG",
+  "taeyang":"https://thumb.wikimedia.org/wikipedia/commons/thumb/5/50/Taeyang_-_MADE_THE_MOVIE_Premiere_%28cropped%29.jpg/250px-Taeyang_-_MADE_THE_MOVIE_Premiere_%28cropped%29.jpg",
+  "taeyeon":"https://thumb.wikimedia.org/wikipedia/commons/thumb/8/80/250307_Taeyeon_%40_-The_Tense-_in_Seoul_Day_1_%2854371295597%29_%28cropped%29.jpg/250px-250307_Taeyeon_%40_-The_Tense-_in_Seoul_Day_1_%2854371295597%29_%28cropped%29.jpg",
+  "dahyun":"https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7a/260618_Kim_Dahyun.png/250px-260618_Kim_Dahyun.png",
+  "wendy":"https://thumb.wikimedia.org/wikipedia/commons/thumb/2/27/Red_Velvet_Wendy_2025-03-20.png/250px-Red_Velvet_Wendy_2025-03-20.png",
+  "han-ga-in":"https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f9/Han_Ga-in_%ED%95%9C%EA%B0%80%EC%9D%B8_2024_02.jpg/250px-Han_Ga-in_%ED%95%9C%EA%B0%80%EC%9D%B8_2024_02.jpg",
+  "kim-junsu":"https://thumb.wikimedia.org/wikipedia/commons/thumb/3/33/%EA%B9%80%EC%A4%80%EC%88%98%2C_2024_%EB%B8%8C%EB%9E%9C%EB%93%9C_%EA%B3%A0%EA%B0%9D%EC%B6%A9%EC%84%B1%EB%8F%84_%EB%8C%80%EC%83%81_%28Kim_Junsu_Brand_Customer_Loyalty_Awards_2024%29.jpg/250px-%EA%B9%80%EC%A4%80%EC%88%98%2C_2024_%EB%B8%8C%EB%9E%9C%EB%93%9C_%EA%B3%A0%EA%B0%9D%EC%B6%A9%EC%84%B1%EB%8F%84_%EB%8C%80%EC%83%81_%28Kim_Junsu_Brand_Customer_Loyalty_Awards_2024%29.jpg",
+  "park-bo-gum":"https://thumb.wikimedia.org/wikipedia/commons/thumb/8/86/Park_Bo-gum_%EB%B0%95%EB%B3%B4%EA%B2%80_%E6%9C%B4%E5%AF%B6%E5%8A%8D_for_Marie_Claire_Korea%2C_April_2025_4.png/250px-Park_Bo-gum_%EB%B0%95%EB%B3%B4%EA%B2%80_%E6%9C%B4%E5%AF%B6%E5%8A%8D_for_Marie_Claire_Korea%2C_April_2025_4.png",
+  "j-hope":"https://thumb.wikimedia.org/wikipedia/commons/thumb/5/57/J-Hope_at_W_Korea_Breast_Cancer_Campaign%2C_15_October_2025.png/250px-J-Hope_at_W_Korea_Breast_Cancer_Campaign%2C_15_October_2025.png",
+  "lisa":"https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cd/Lalisa_Manobal_at_the_Busan_International_Film_Festival_2025_01.jpg/250px-Lalisa_Manobal_at_the_Busan_International_Film_Festival_2025_01.jpg",
+  "an-yujin":"https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f0/IVE_Yujin_2026_GDA.jpg/250px-IVE_Yujin_2026_GDA.jpg",
+  "kim-chaewon":"https://thumb.wikimedia.org/wikipedia/commons/thumb/6/62/240329_Kim_Chae-won_%281%29.jpg/250px-240329_Kim_Chae-won_%281%29.jpg",
+  "suga":"https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ea/Suga_for_Valentino_and_Marie_Claire_Korea_06.jpg/250px-Suga_for_Valentino_and_Marie_Claire_Korea_06.jpg",
+  "tzuyu":"https://thumb.wikimedia.org/wikipedia/commons/thumb/1/19/Twice_in_Seattle_2026_-_TWICE._Tzuyu_%2855045325500%29_%28cropped%29.jpg/250px-Twice_in_Seattle_2026_-_TWICE._Tzuyu_%2855045325500%29_%28cropped%29.jpg",
+  "yoo-jae-suk":"https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4a/Yoo_Jae-suk_%28cropped%29.jpg/250px-Yoo_Jae-suk_%28cropped%29.jpg",
+  "jungkook":"https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f6/Jung_Kook_of_BTS%2C_February_12%2C_2026_%281%29.png/250px-Jung_Kook_of_BTS%2C_February_12%2C_2026_%281%29.png",
+  "yook-sungjae":"https://thumb.wikimedia.org/wikipedia/commons/thumb/2/27/Yook_Sung-jae_in_September_2025.png/250px-Yook_Sung-jae_in_September_2025.png",
+  "jeon-somin":"https://thumb.wikimedia.org/wikipedia/commons/thumb/3/34/2017_%EC%95%84%EC%8B%9C%EC%95%84_%EB%AA%A8%EB%8D%B8_%ED%8E%98%EC%8A%A4%ED%8B%B0%EB%B2%8C_%EB%A0%88%EB%93%9C%EC%B9%B4%ED%8E%AB_%2869%29.jpg/250px-2017_%EC%95%84%EC%8B%9C%EC%95%84_%EB%AA%A8%EB%8D%B8_%ED%8E%98%EC%8A%A4%ED%8B%B0%EB%B2%8C_%EB%A0%88%EB%93%9C%EC%B9%B4%ED%8E%AB_%2869%29.jpg",
+  "greg-hsu":"https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4d/%E3%80%8A%E4%BB%96%E5%B9%B4%E5%A5%B9%E6%97%A5%E3%80%8B%E8%87%BA%E5%8C%97%E9%A6%96%E6%98%A0%E5%85%B8%E7%A6%AE%EF%BC%8D%E8%A8%B1%E5%85%89%E6%BC%A2_01.png/250px-%E3%80%8A%E4%BB%96%E5%B9%B4%E5%A5%B9%E6%97%A5%E3%80%8B%E8%87%BA%E5%8C%97%E9%A6%96%E6%98%A0%E5%85%B8%E7%A6%AE%EF%BC%8D%E8%A8%B1%E5%85%89%E6%BC%A2_01.png",
+  "yoona":"https://thumb.wikimedia.org/wikipedia/commons/thumb/6/60/260508_YOONA_%40_62nd_BAEKSANG_AWARDS_with_GUCCI.jpg/250px-260508_YOONA_%40_62nd_BAEKSANG_AWARDS_with_GUCCI.jpg",
+};
+
+function commonsPage(url){
+  const m=url.match(/\/commons\/(?:thumb\/)?[0-9a-f]\/[0-9a-f]{2}\/([^/]+)/);
+  return m ? "https://commons.wikimedia.org/wiki/File:"+m[1] : url;
+}
+
+function CelebAvatar({name,img,c}){
+  const [ok,setOk]=useState(true);
+  const src=PHOTOS[img];
+  return html`<div class="ph" style=${{"--c":c}}>
+    ${ok && src ? html`<a href=${commonsPage(src)} target="_blank" rel="noopener" title=${"Photo: "+name+" — Wikimedia Commons"}>
+        <img src=${src} alt=${name} loading="lazy" referrerpolicy="no-referrer" onError=${()=>setOk(false)}/></a>` : name[0]}
+  </div>`;
+}
+
+function CelebrityTwins({team}){
+  return html`<div class="section" style=${{marginTop:0}}>
+    <h3>Celebrity Type Twins</h3>
+    <div class="grid3">${team.map((m,i)=>{
+      const g=group(m.mbti);
+      return html`<div key=${i} class="card">
+        <div class="twins-head"><b>${m.name}</b><span class="type" style=${{color:g.c,fontSize:13}}>${m.mbti}</span></div>
+        <div class="celebs">${(CELEBS[m.mbti]||[]).map(([n,img,note])=>html`<div key=${img+n} class="celeb">
+          <${CelebAvatar} name=${n} img=${img} c=${g.c}/>${n}${note && html`<small>${note}</small>`}</div>`)}</div>
+      </div>`;})}
+    </div>
+  </div>`;
+}
+
+// ---- Components ----
+function LandingPage({onStart}){
+  const chips=[["INTJ","var(--nt)","4%","10%","0s"],["ENFP","var(--nf)","56%","2%",".8s"],["ISTJ","var(--sj)","32%","74%","1.6s"]];
+  return html`
+  <section class="hero">
+    <div>
+      <p class="eyebrow">MBTI Team Match · 3-person teams</p>
+      <h1 style=${{marginTop:12}}>Discover Your Team <em>Chemistry</em></h1>
+      <p>Enter your team's MBTI types and discover how your working styles fit together.</p>
+      <button class="btn" onClick=${onStart}>Start Analysis →</button>
+      <div class="legend" style=${{marginTop:28}}>
+        <span style=${{"--c":"var(--nt)"}}>Analysts</span>
+        <span style=${{"--c":"var(--nf)"}}>Diplomats</span>
+        <span style=${{"--c":"var(--sj)"}}>Sentinels</span>
+        <span style=${{"--c":"var(--sp)"}}>Explorers</span>
+      </div>
+    </div>
+    <div class="tri" aria-hidden="true">
+      <svg viewBox="0 0 100 100"><polygon points="20,22 80,22 50,84" fill="none" stroke="var(--line)" stroke-width="1.2" stroke-dasharray="3 3"/>
+      <text x="50" y="45" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-weight="800" font-size="14" fill="var(--accent)">71%</text>
+      <text x="50" y="53" text-anchor="middle" font-size="4" fill="var(--muted)" font-family="Figtree, sans-serif">team score</text></svg>
+      ${chips.map(([t,c,l,top,d])=>html`<div key=${t} class="chip" style=${{background:c,left:l,top,animationDelay:d}}>${t}</div>`)}
+    </div>
+  </section>`;
+}
+
+function MemberInputCard({i,m,onChange}){
+  const g = group(m.mbti);
+  return html`
+  <div class="card">
+    <div class="member-top">
+      <div class="avatar" style=${{"--c":g?g.c:"var(--muted)"}}>${(m.name.trim()[0]||(i+1)).toString().toUpperCase()}</div>
+      <span class="eyebrow">Member ${i+1}</span>
+    </div>
+    <div class="field">
+      <label for=${"name"+i}>Name</label>
+      <input id=${"name"+i} value=${m.name} placeholder="e.g. Ryan" maxLength="24"
+        onInput=${e=>onChange({...m,name:e.target.value})}/>
+    </div>
+    <div class="field">
+      <label for=${"mbti"+i}>MBTI</label>
+      <select id=${"mbti"+i} value=${m.mbti} onChange=${e=>onChange({...m,mbti:e.target.value})}>
+        <option value="">Select type…</option>
+        ${TYPES.map(t=>html`<option key=${t} value=${t}>${t}</option>`)}
+      </select>
+    </div>
+    ${g && html`<span class="temp" style=${{"--c":g.c}}>${g.n}</span>`}
+  </div>`;
+}
+
+function TeamSetup({team,setTeam,teamName,setTeamName,onAnalyse,onBack}){
+  const [err,setErr]=useState("");
+  const submit=()=>{
+    if(!teamName.trim()){setErr("Please enter a team name.");return;}
+    if(team.some(m=>!m.name.trim()||!TYPES.includes(m.mbti))){setErr("Please complete all team member details.");return;}
+    setErr(""); onAnalyse();
+  };
+  return html`
+  <section>
+    <div class="head">
+      <div><p class="eyebrow">Step 1 of 2</p><h2>Who's on the team?</h2></div>
+      <button class="btn ghost" onClick=${()=>{setTeam(EMPTY_TEAM);setTeamName("");setErr("");}}>Clear all</button>
+    </div>
+    <div class="card team-name">
+      <label for="teamName">Team name</label>
+      <input id="teamName" value=${teamName} placeholder="e.g. The Dream Team" maxLength="40"
+        onInput=${e=>setTeamName(e.target.value)}/>
+    </div>
+    <div class="grid3">
+      ${team.map((m,i)=>html`<${MemberInputCard} key=${i} i=${i} m=${m}
+        onChange=${nm=>setTeam(team.map((x,j)=>j===i?nm:x))}/>`)}
+    </div>
+    ${err && html`<div class="error" role="alert">${err}</div>`}
+    <div class="actions">
+      <button class="btn" onClick=${submit}>Analyse Team →</button>
+      <button class="btn ghost" onClick=${onBack}>Back</button>
+    </div>
+  </section>`;
+}
+
+function MemberCard({m}){
+  const g=group(m.mbti);
+  return html`<div class="card member">
+    <div class="avatar" style=${{"--c":g.c}}>${m.name.trim()[0].toUpperCase()}</div>
+    <div><b>${m.name}</b><span class="type" style=${{color:g.c}}>${m.mbti}</span> <span style=${{color:"var(--muted)",fontSize:13}}>· ${g.n}</span></div>
+  </div>`;
+}
+
+function TeamScore({score}){
+  const l=label(score);
+  return html`<div class="card team-score">
+    <div class="big" style=${{color:l.c}}>${score}<small>%</small></div>
+    <div class="stack" style=${{gap:10}}>
+      <p class="eyebrow">Team Compatibility</p>
+      <div><span class="pill" style=${{"--c":l.c}}>${l.t}</span></div>
+      <div class="bar" style=${{"--c":l.c}}><i style=${{width:score+"%"}}></i></div>
+      <p style=${{color:"var(--muted)",fontSize:14}}>Average of the three pair scores. Scale runs 56–100%.</p>
+    </div>
+  </div>`;
+}
+
+function PairCompatibilityCard({a,b}){
+  const s=compat(a.mbti,b.mbti), l=label(s), t=pairText(a.mbti,b.mbti);
+  return html`<div class="card pair">
+    <div class="names">${a.name} × ${b.name}</div>
+    <div class="type" style=${{fontSize:13,color:"var(--muted)"}}>${a.mbti} · ${b.mbti}</div>
+    <div class="pct" style=${{color:l.c}}>${s}%</div>
+    <div class="bar" style=${{"--c":l.c}}><i style=${{width:s+"%"}}></i></div>
+    <div class="dims">${DIMS.map(d=>html`<span key=${d.key} class=${a.mbti[d.i]===b.mbti[d.i]?"same":""}
+      title=${a.mbti[d.i]===b.mbti[d.i]?"Same preference":"Different preference"}>${a.mbti[d.i]}/${b.mbti[d.i]}</span>`)}</div>
+    <p style=${{fontWeight:600}}>${t.interp}</p>
+    <div class="kv"><b>Strength</b>${t.strength}</div>
+    <div class="kv"><b>Potential challenge</b>${t.challenge}</div>
+  </div>`;
+}
+
+const StrengthCard=({h,p})=>html`<div class="note s"><h4>${h}</h4><p>${p}</p></div>`;
+const FrictionCard=({h,p})=>html`<div class="note f"><h4>${h}</h4><p>${p}</p></div>`;
+const CollaborationTips=({tips})=>html`<ol class="tips">${tips.map((t,i)=>html`<li key=${i}>${t}</li>`)}</ol>`;
+
+function ResultsDashboard({team,teamName,onEdit,onRestart}){
+  const pairs=[[0,1],[0,2],[1,2]];
+  const scores=pairs.map(([i,j])=>compat(team[i].mbti,team[j].mbti));
+  const teamScore=Math.round(scores.reduce((a,b)=>a+b,0)/3);
+  const ins=teamInsights(team);
+  return html`<section>
+    <div class="head">
+      <div><p class="eyebrow">Step 2 of 2 · Your Team</p><h2 class="team-title">${teamName}</h2></div>
+      <div class="actions" style=${{marginTop:0}}>
+        <button class="btn ghost" onClick=${onEdit}>Edit team</button>
+        <button class="btn" onClick=${onRestart}>New analysis</button>
+      </div>
+    </div>
+    <div class="members">${team.map((m,i)=>html`<${MemberCard} key=${i} m=${m}/>`)}</div>
+    <${TeamScore} score=${teamScore}/>
+    <${CelebrityTwins} team=${team}/>
+    <div style=${{height:40}}></div>
+    <div class="section" style=${{marginTop:0}}><h3>Pair Matches</h3>
+      <div class="grid3">${pairs.map(([i,j])=>html`<${PairCompatibilityCard} key=${i+"-"+j} a=${team[i]} b=${team[j]}/>`)}</div>
+    </div>
+    <div class="section"><h3>Team Strengths</h3>
+      <div class="grid3">${ins.strengths.map(s=>html`<${StrengthCard} key=${s.h} ...${s}/>`)}</div></div>
+    <div class="section"><h3>Potential Friction</h3>
+      <div class="grid3">${ins.friction.map(s=>html`<${FrictionCard} key=${s.h} ...${s}/>`)}</div></div>
+    <div class="section"><h3>How to Work Better Together</h3><${CollaborationTips} tips=${ins.tips}/></div>
+    <p class="disclaimer">Scores are a simple heuristic based on four MBTI preference pairs and describe working-style alignment only — not a validated psychological measure. Celebrity types are commonly cited online and are not official. Celebrity photos from Wikimedia Commons under their respective free licences — tap a photo for its source and licence.</p>
+  </section>`;
+}
+
+function App(){
+  const [screen,setScreen]=useState("landing");
+  const [team,setTeamState]=useState(()=>{
+    try{const s=JSON.parse(localStorage.getItem(STORE)); if(Array.isArray(s)&&s.length===3) return s;}catch(e){}
+    return SAMPLE;
+  });
+  const setTeam=t=>{setTeamState(t);try{localStorage.setItem(STORE,JSON.stringify(t));}catch(e){}};
+  const [teamName,setTeamNameState]=useState(()=>{
+    try{const n=localStorage.getItem(STORE+"-name"); if(n!==null) return n;}catch(e){}
+    return SAMPLE_NAME;
+  });
+  const setTeamName=n=>{setTeamNameState(n);try{localStorage.setItem(STORE+"-name",n);}catch(e){}};
+  const go=s=>{setScreen(s);window.scrollTo({top:0});};
+  return html`<main class="wrap">
+    ${screen==="landing" && html`<${LandingPage} onStart=${()=>go("setup")}/>`}
+    ${screen==="setup" && html`<${TeamSetup} team=${team} setTeam=${setTeam} teamName=${teamName} setTeamName=${setTeamName} onAnalyse=${()=>go("results")} onBack=${()=>go("landing")}/>`}
+    ${screen==="results" && html`<${ResultsDashboard} team=${team} teamName=${teamName.trim()} onEdit=${()=>go("setup")} onRestart=${()=>{setTeam(EMPTY_TEAM);setTeamName("");go("setup");}}/>`}
+  </main>`;
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(html`<${App}/>`);
+</script>
+</body>
+</html>
