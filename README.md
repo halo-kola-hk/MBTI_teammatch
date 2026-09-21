@@ -1,0 +1,60 @@
+# MBTI Team Match
+
+Discover your team chemistry. Enter the names and MBTI types of a 3-person team and get:
+
+- pairwise compatibility scores for all three pairs, each with an interpretation, a likely strength and a likely challenge
+- an overall team compatibility score and label
+- team strengths, potential friction points and collaboration tips
+
+No quiz, no backend, no database, no login — everything runs in the browser.
+
+## Run it
+
+Open `index.html` in any modern browser. That's it.
+
+Or host it for free with **GitHub Pages**: repo → Settings → Pages → Source: *Deploy from a branch* → `main` / `root`.
+
+## How scoring works
+
+Each pair is compared on the four MBTI dimensions, starting from a base of 20 points:
+
+| Dimension | Same | Different |
+| --------- | ---: | --------: |
+| E / I     |  +20 |       +12 |
+| S / N     |  +20 |        +8 |
+| T / F     |  +20 |       +10 |
+| J / P     |  +20 |        +6 |
+
+Range: 56–100%. Team score = average of the three pair scores, rounded.
+
+| Score  | Label                         |
+| ------ | ----------------------------- |
+| 85–100 | Highly Aligned                |
+| 75–84  | Strong Potential              |
+| 65–74  | Mixed but Complementary       |
+| 55–64  | Different Working Styles      |
+| < 55   | Significant Style Differences |
+
+> This is a simple heuristic describing working-style alignment only — not a validated psychological measure.
+
+## Tech
+
+- React 18 (UMD via cdnjs) + [htm](https://github.com/developit/htm) for JSX-like templates — no build step
+- Plain CSS with light/dark theme tokens
+- `localStorage` remembers the last team entered
+
+## Components
+
+```
+App
+├── LandingPage
+├── TeamSetup
+│   └── MemberInputCard
+└── ResultsDashboard
+    ├── MemberCard
+    ├── TeamScore
+    ├── PairCompatibilityCard
+    ├── StrengthCard
+    ├── FrictionCard
+    └── CollaborationTips
+```
