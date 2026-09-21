@@ -58,3 +58,7 @@ App
     ├── FrictionCard
     └── CollaborationTips
 ```
+
+## Credits
+
+Celebrity photos are loaded from [Wikimedia Commons](https://commons.wikimedia.org) under their respective free licences (tap any photo in the app to open its source page with author and licence). Celebrity MBTI types are commonly cited online and are not official.

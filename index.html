@@ -108,6 +108,16 @@ select{font-family:var(--mono);font-weight:700;letter-spacing:.06em;cursor:point
 .tips li{counter-increment:t;display:flex;gap:14px;align-items:flex-start;padding:16px 18px;background:var(--soft);border-radius:14px}
 .tips li::before{content:counter(t);flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--accent-ink);font-weight:700;font-size:14px}
 .disclaimer{margin-top:40px;font-size:13px;color:var(--muted)}
+.twins-head{display:flex;align-items:baseline;gap:8px;margin-bottom:14px}
+.twins-head b{font-family:var(--display);font-size:18px}
+.celebs{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:14px 10px}
+.celeb{text-align:center;font-size:13px;line-height:1.3}
+.celeb .ph{width:68px;height:68px;margin:0 auto 6px;border-radius:50%;overflow:hidden;display:grid;place-items:center;
+  background:color-mix(in srgb,var(--c) 18%,var(--card));color:var(--c);font-family:var(--display);font-weight:800;font-size:24px;
+  box-shadow:0 0 0 3px var(--card),0 0 0 5px color-mix(in srgb,var(--c) 45%,transparent)}
+.celeb .ph a{display:block;width:100%;height:100%}
+.celeb .ph img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 20%}
+.celeb small{display:block;color:var(--muted);font-size:11px}
 </style>
 
 </head>
@@ -228,6 +238,104 @@ function teamInsights(team){
   return {strengths,friction,tips};
 }
 
+// ---- Celebrities by type (commonly cited online, unofficial) ----
+// Photos: freely licensed images hosted on Wikimedia Commons (missing/failed → initial)
+const CELEBS = {
+  INTJ:[["周杰倫","jay-chou"],["張一鳴","zhang-yiming","字節跳動創辦人"],["銀赫","eunhyuk","Super Junior"]],
+  INTP:[["劉亦菲","liu-yifei"],["馬化騰","pony-ma","騰訊創辦人"],["劉慈欣","liu-cixin","《三體》作者"]],
+  ENTJ:[["劉強東","richard-liu","京東創辦人"],["王興","wang-xing","美團創辦人"]],
+  ENTP:[["周鴻禕","zhou-hongyi","360創辦人"],["李泳知","lee-young-ji","韓國饒舌歌手"]],
+  INFJ:[["IU","iu","李知恩"],["宋慧喬","song-hye-kyo"],["車銀優","cha-eun-woo"],["桂綸鎂","gwei-lun-mei"]],
+  INFP:[["林俊傑","jj-lin"],["胡歌","hu-ge"],["葉舒華","yeh-shuhua","(G)I-DLE"],["張子楓","zhang-zifeng"]],
+  ENFJ:[["宋仲基","song-joong-ki"],["王嘉爾","jackson-wang"],["宋雨琦","song-yuqi","(G)I-DLE"]],
+  ENFP:[["劉德華","andy-lau"],["肖戰","xiao-zhan"],["楊紫","yang-zi"],["Sana","sana","TWICE"]],
+  ISTJ:[["李昌鎬","lee-chang-ho","圍棋大師"],["太陽","taeyang","BIGBANG"]],
+  ISFJ:[["太妍","taeyeon","少女時代"],["多賢","dahyun","TWICE"],["Wendy","wendy","Red Velvet"]],
+  ESTJ:[["韓佳人","han-ga-in"],["金俊秀","kim-junsu"]],
+  ESFJ:[["朴寶劍","park-bo-gum"],["J-Hope","j-hope","BTS"],["Lisa","lisa","BLACKPINK"]],
+  ISTP:[["安俞真","an-yujin","IVE"],["金采源","kim-chaewon","LE SSERAFIM"],["Suga","suga","BTS"]],
+  ISFP:[["周子瑜","tzuyu","TWICE"],["劉在錫","yoo-jae-suk"],["田柾國","jungkook","BTS"]],
+  ESTP:[["陸星材","yook-sungjae","BTOB"],["全昭旻","jeon-somin"]],
+  ESFP:[["許光漢","greg-hsu"],["王嘉爾","jackson-wang","早期測驗結果"],["潤娥","yoona","少女時代"]],
+};
+
+// Commons file page for attribution, derived from the thumbnail URL
+const PHOTOS = {
+  "jay-chou":"https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9b/%E5%91%A8%E6%9D%B0%E5%80%AB_Jay_Chou_in_2026.jpg/250px-%E5%91%A8%E6%9D%B0%E5%80%AB_Jay_Chou_in_2026.jpg",
+  "zhang-yiming":"https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e0/The_CEO_Magazine_Cover.jpg/250px-The_CEO_Magazine_Cover.jpg",
+  "eunhyuk":"https://thumb.wikimedia.org/wikipedia/commons/thumb/2/21/180502_%EC%9D%80%ED%98%81.jpg/250px-180502_%EC%9D%80%ED%98%81.jpg",
+  "liu-yifei":"https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f4/Liu_Yifei_attended_the_brand_event.jpg/250px-Liu_Yifei_attended_the_brand_event.jpg",
+  "pony-ma":"https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d6/%E9%A9%AC%E5%8C%96%E8%85%BE_Pony_Ma_2019.jpg/250px-%E9%A9%AC%E5%8C%96%E8%85%BE_Pony_Ma_2019.jpg",
+  "liu-cixin":"https://thumb.wikimedia.org/wikipedia/commons/thumb/0/09/Cixin_Liu_at_Worldcon_75%2C_Helsinki%2C_before_the_Hugo_Awards.jpg/250px-Cixin_Liu_at_Worldcon_75%2C_Helsinki%2C_before_the_Hugo_Awards.jpg",
+  "richard-liu":"https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bd/Liu_Qiangdong.jpg/250px-Liu_Qiangdong.jpg",
+  "wang-xing":"https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3f/Wang_Xing_in_2009.jpg/250px-Wang_Xing_in_2009.jpg",
+  "zhou-hongyi":"https://thumb.wikimedia.org/wikipedia/commons/thumb/6/67/Zhou_Hongyi-20250304.png/250px-Zhou_Hongyi-20250304.png",
+  "lee-young-ji":"https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f4/Lee_Young-ji_in_February_2026.png/250px-Lee_Young-ji_in_February_2026.png",
+  "iu":"https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2f/IU_at_Blue_Dragon_Series_Awards_on_18072025_%2810%29.png/250px-IU_at_Blue_Dragon_Series_Awards_on_18072025_%2810%29.png",
+  "song-hye-kyo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/5/53/Song_Hye_Kyo_2025_%EC%86%A1%ED%98%9C%EA%B5%90_04.jpg/250px-Song_Hye_Kyo_2025_%EC%86%A1%ED%98%9C%EA%B5%90_04.jpg",
+  "cha-eun-woo":"https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d8/Cha_Eun-woo%2C_March_31%2C_2025.png/250px-Cha_Eun-woo%2C_March_31%2C_2025.png",
+  "gwei-lun-mei":"https://thumb.wikimedia.org/wikipedia/commons/thumb/c/ce/Gwei_Lun-mei_20220611.jpg/250px-Gwei_Lun-mei_20220611.jpg",
+  "jj-lin":"https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0b/JJ_Lin_at_Shaping_Hearts_Award_2025_ceremony.jpg/250px-JJ_Lin_at_Shaping_Hearts_Award_2025_ceremony.jpg",
+  "hu-ge":"https://thumb.wikimedia.org/wikipedia/commons/thumb/8/86/HUGE20161211BJ.jpg/250px-HUGE20161211BJ.jpg",
+  "yeh-shuhua":"https://thumb.wikimedia.org/wikipedia/commons/thumb/7/77/Shuhua_Yeh_portrait_at_TIFF_2026.jpg/250px-Shuhua_Yeh_portrait_at_TIFF_2026.jpg",
+  "zhang-zifeng":"https://upload.wikimedia.org/wikipedia/commons/7/7e/%E5%BC%A0%E5%AD%90%E6%9E%AB.png",
+  "song-joong-ki":"https://thumb.wikimedia.org/wikipedia/commons/thumb/1/13/Song_Joong-ki_at_Style_Icon_Asia_2016.jpg/250px-Song_Joong-ki_at_Style_Icon_Asia_2016.jpg",
+  "jackson-wang":"https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a3/Jackson_Wang_interviewed_for_POVJOV_02.png/250px-Jackson_Wang_interviewed_for_POVJOV_02.png",
+  "song-yuqi":"https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fa/20230630_Song_Yu-qi.jpg/250px-20230630_Song_Yu-qi.jpg",
+  "andy-lau":"https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bb/Andy_Lau_%E5%88%98%E5%BE%B7%E5%8D%8E%2C_Beijing_International_Film_Festival_%E5%8C%97%E4%BA%AC%E7%94%B5%E5%BD%B1%E8%8A%82%2C_2013_%28cropped%29.jpg/250px-Andy_Lau_%E5%88%98%E5%BE%B7%E5%8D%8E%2C_Beijing_International_Film_Festival_%E5%8C%97%E4%BA%AC%E7%94%B5%E5%BD%B1%E8%8A%82%2C_2013_%28cropped%29.jpg",
+  "xiao-zhan":"https://thumb.wikimedia.org/wikipedia/commons/thumb/1/15/Xiao_Zhan_at_the_Weibo_Night_Ceremony_January_11_2020.jpg/250px-Xiao_Zhan_at_the_Weibo_Night_Ceremony_January_11_2020.jpg",
+  "yang-zi":"https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6c/Yang_Zi_at_Ryo_band_promotion%2C_Wuhan_of_China%2C_12_April_2019.jpg/250px-Yang_Zi_at_Ryo_band_promotion%2C_Wuhan_of_China%2C_12_April_2019.jpg",
+  "sana":"https://thumb.wikimedia.org/wikipedia/commons/thumb/3/38/Sana_Minatozaki_in_April_2026.png/250px-Sana_Minatozaki_in_April_2026.png",
+  "lee-chang-ho":"https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fc/Lee_ChangHo.JPG/250px-Lee_ChangHo.JPG",
+  "taeyang":"https://thumb.wikimedia.org/wikipedia/commons/thumb/5/50/Taeyang_-_MADE_THE_MOVIE_Premiere_%28cropped%29.jpg/250px-Taeyang_-_MADE_THE_MOVIE_Premiere_%28cropped%29.jpg",
+  "taeyeon":"https://thumb.wikimedia.org/wikipedia/commons/thumb/8/80/250307_Taeyeon_%40_-The_Tense-_in_Seoul_Day_1_%2854371295597%29_%28cropped%29.jpg/250px-250307_Taeyeon_%40_-The_Tense-_in_Seoul_Day_1_%2854371295597%29_%28cropped%29.jpg",
+  "dahyun":"https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7a/260618_Kim_Dahyun.png/250px-260618_Kim_Dahyun.png",
+  "wendy":"https://thumb.wikimedia.org/wikipedia/commons/thumb/2/27/Red_Velvet_Wendy_2025-03-20.png/250px-Red_Velvet_Wendy_2025-03-20.png",
+  "han-ga-in":"https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f9/Han_Ga-in_%ED%95%9C%EA%B0%80%EC%9D%B8_2024_02.jpg/250px-Han_Ga-in_%ED%95%9C%EA%B0%80%EC%9D%B8_2024_02.jpg",
+  "kim-junsu":"https://thumb.wikimedia.org/wikipedia/commons/thumb/3/33/%EA%B9%80%EC%A4%80%EC%88%98%2C_2024_%EB%B8%8C%EB%9E%9C%EB%93%9C_%EA%B3%A0%EA%B0%9D%EC%B6%A9%EC%84%B1%EB%8F%84_%EB%8C%80%EC%83%81_%28Kim_Junsu_Brand_Customer_Loyalty_Awards_2024%29.jpg/250px-%EA%B9%80%EC%A4%80%EC%88%98%2C_2024_%EB%B8%8C%EB%9E%9C%EB%93%9C_%EA%B3%A0%EA%B0%9D%EC%B6%A9%EC%84%B1%EB%8F%84_%EB%8C%80%EC%83%81_%28Kim_Junsu_Brand_Customer_Loyalty_Awards_2024%29.jpg",
+  "park-bo-gum":"https://thumb.wikimedia.org/wikipedia/commons/thumb/8/86/Park_Bo-gum_%EB%B0%95%EB%B3%B4%EA%B2%80_%E6%9C%B4%E5%AF%B6%E5%8A%8D_for_Marie_Claire_Korea%2C_April_2025_4.png/250px-Park_Bo-gum_%EB%B0%95%EB%B3%B4%EA%B2%80_%E6%9C%B4%E5%AF%B6%E5%8A%8D_for_Marie_Claire_Korea%2C_April_2025_4.png",
+  "j-hope":"https://thumb.wikimedia.org/wikipedia/commons/thumb/5/57/J-Hope_at_W_Korea_Breast_Cancer_Campaign%2C_15_October_2025.png/250px-J-Hope_at_W_Korea_Breast_Cancer_Campaign%2C_15_October_2025.png",
+  "lisa":"https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cd/Lalisa_Manobal_at_the_Busan_International_Film_Festival_2025_01.jpg/250px-Lalisa_Manobal_at_the_Busan_International_Film_Festival_2025_01.jpg",
+  "an-yujin":"https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f0/IVE_Yujin_2026_GDA.jpg/250px-IVE_Yujin_2026_GDA.jpg",
+  "kim-chaewon":"https://thumb.wikimedia.org/wikipedia/commons/thumb/6/62/240329_Kim_Chae-won_%281%29.jpg/250px-240329_Kim_Chae-won_%281%29.jpg",
+  "suga":"https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ea/Suga_for_Valentino_and_Marie_Claire_Korea_06.jpg/250px-Suga_for_Valentino_and_Marie_Claire_Korea_06.jpg",
+  "tzuyu":"https://thumb.wikimedia.org/wikipedia/commons/thumb/1/19/Twice_in_Seattle_2026_-_TWICE._Tzuyu_%2855045325500%29_%28cropped%29.jpg/250px-Twice_in_Seattle_2026_-_TWICE._Tzuyu_%2855045325500%29_%28cropped%29.jpg",
+  "yoo-jae-suk":"https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4a/Yoo_Jae-suk_%28cropped%29.jpg/250px-Yoo_Jae-suk_%28cropped%29.jpg",
+  "jungkook":"https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f6/Jung_Kook_of_BTS%2C_February_12%2C_2026_%281%29.png/250px-Jung_Kook_of_BTS%2C_February_12%2C_2026_%281%29.png",
+  "yook-sungjae":"https://thumb.wikimedia.org/wikipedia/commons/thumb/2/27/Yook_Sung-jae_in_September_2025.png/250px-Yook_Sung-jae_in_September_2025.png",
+  "jeon-somin":"https://thumb.wikimedia.org/wikipedia/commons/thumb/3/34/2017_%EC%95%84%EC%8B%9C%EC%95%84_%EB%AA%A8%EB%8D%B8_%ED%8E%98%EC%8A%A4%ED%8B%B0%EB%B2%8C_%EB%A0%88%EB%93%9C%EC%B9%B4%ED%8E%AB_%2869%29.jpg/250px-2017_%EC%95%84%EC%8B%9C%EC%95%84_%EB%AA%A8%EB%8D%B8_%ED%8E%98%EC%8A%A4%ED%8B%B0%EB%B2%8C_%EB%A0%88%EB%93%9C%EC%B9%B4%ED%8E%AB_%2869%29.jpg",
+  "greg-hsu":"https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4d/%E3%80%8A%E4%BB%96%E5%B9%B4%E5%A5%B9%E6%97%A5%E3%80%8B%E8%87%BA%E5%8C%97%E9%A6%96%E6%98%A0%E5%85%B8%E7%A6%AE%EF%BC%8D%E8%A8%B1%E5%85%89%E6%BC%A2_01.png/250px-%E3%80%8A%E4%BB%96%E5%B9%B4%E5%A5%B9%E6%97%A5%E3%80%8B%E8%87%BA%E5%8C%97%E9%A6%96%E6%98%A0%E5%85%B8%E7%A6%AE%EF%BC%8D%E8%A8%B1%E5%85%89%E6%BC%A2_01.png",
+  "yoona":"https://thumb.wikimedia.org/wikipedia/commons/thumb/6/60/260508_YOONA_%40_62nd_BAEKSANG_AWARDS_with_GUCCI.jpg/250px-260508_YOONA_%40_62nd_BAEKSANG_AWARDS_with_GUCCI.jpg",
+};
+
+function commonsPage(url){
+  const m=url.match(/\/commons\/(?:thumb\/)?[0-9a-f]\/[0-9a-f]{2}\/([^/]+)/);
+  return m ? "https://commons.wikimedia.org/wiki/File:"+m[1] : url;
+}
+
+function CelebAvatar({name,img,c}){
+  const [ok,setOk]=useState(true);
+  const src=PHOTOS[img];
+  return html`<div class="ph" style=${{"--c":c}}>
+    ${ok && src ? html`<a href=${commonsPage(src)} target="_blank" rel="noopener" title=${"Photo: "+name+" — Wikimedia Commons"}>
+        <img src=${src} alt=${name} loading="lazy" referrerpolicy="no-referrer" onError=${()=>setOk(false)}/></a>` : name[0]}
+  </div>`;
+}
+
+function CelebrityTwins({team}){
+  return html`<div class="section" style=${{marginTop:0}}>
+    <h3>Celebrity Type Twins</h3>
+    <div class="grid3">${team.map((m,i)=>{
+      const g=group(m.mbti);
+      return html`<div key=${i} class="card">
+        <div class="twins-head"><b>${m.name}</b><span class="type" style=${{color:g.c,fontSize:13}}>${m.mbti}</span></div>
+        <div class="celebs">${(CELEBS[m.mbti]||[]).map(([n,img,note])=>html`<div key=${img+n} class="celeb">
+          <${CelebAvatar} name=${n} img=${img} c=${g.c}/>${n}${note && html`<small>${note}</small>`}</div>`)}</div>
+      </div>`;})}
+    </div>
+  </div>`;
+}
+
 // ---- Components ----
 function LandingPage({onStart}){
   const chips=[["INTJ","var(--nt)","4%","10%","0s"],["ENFP","var(--nf)","56%","2%",".8s"],["ISTJ","var(--sj)","32%","74%","1.6s"]];
@@ -247,7 +355,7 @@ function LandingPage({onStart}){
     </div>
     <div class="tri" aria-hidden="true">
       <svg viewBox="0 0 100 100"><polygon points="20,22 80,22 50,84" fill="none" stroke="var(--line)" stroke-width="1.2" stroke-dasharray="3 3"/>
-      <text x="50" y="45" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-weight="800" font-size="14" fill="var(--accent)">78%</text>
+      <text x="50" y="45" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-weight="800" font-size="14" fill="var(--accent)">71%</text>
       <text x="50" y="53" text-anchor="middle" font-size="4" fill="var(--muted)" font-family="Figtree, sans-serif">team score</text></svg>
       ${chips.map(([t,c,l,top,d])=>html`<div key=${t} class="chip" style=${{background:c,left:l,top,animationDelay:d}}>${t}</div>`)}
     </div>
@@ -357,6 +465,8 @@ function ResultsDashboard({team,onEdit,onRestart}){
     </div>
     <div class="members">${team.map((m,i)=>html`<${MemberCard} key=${i} m=${m}/>`)}</div>
     <${TeamScore} score=${teamScore}/>
+    <${CelebrityTwins} team=${team}/>
+    <div style=${{height:40}}></div>
     <div class="section" style=${{marginTop:0}}><h3>Pair Matches</h3>
       <div class="grid3">${pairs.map(([i,j])=>html`<${PairCompatibilityCard} key=${i+"-"+j} a=${team[i]} b=${team[j]}/>`)}</div>
     </div>
@@ -365,7 +475,7 @@ function ResultsDashboard({team,onEdit,onRestart}){
     <div class="section"><h3>Potential Friction</h3>
       <div class="grid3">${ins.friction.map(s=>html`<${FrictionCard} key=${s.h} ...${s}/>`)}</div></div>
     <div class="section"><h3>How to Work Better Together</h3><${CollaborationTips} tips=${ins.tips}/></div>
-    <p class="disclaimer">Scores are a simple heuristic based on four MBTI preference pairs and describe working-style alignment only — not a validated psychological measure.</p>
+    <p class="disclaimer">Scores are a simple heuristic based on four MBTI preference pairs and describe working-style alignment only — not a validated psychological measure. Celebrity types are commonly cited online and are not official. Celebrity photos from Wikimedia Commons under their respective free licences — tap a photo for its source and licence.</p>
   </section>`;
 }
 
