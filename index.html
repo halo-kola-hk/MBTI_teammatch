@@ -118,6 +118,31 @@ select{font-family:var(--mono);font-weight:700;letter-spacing:.06em;cursor:point
 .celeb .ph a{display:block;width:100%;height:100%}
 .celeb .ph img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 20%}
 .celeb small{display:block;color:var(--muted);font-size:11px}
+.upgrade-hero{display:grid;grid-template-columns:1.1fr .9fr;gap:28px;align-items:stretch;margin-top:8px}
+@media (max-width:760px){.upgrade-hero{grid-template-columns:1fr}}
+.upgrade-copy{padding:30px 4px}
+.upgrade-copy h2{font-size:clamp(34px,5vw,52px);line-height:1.02;margin:10px 0 16px}
+.upgrade-copy p{color:var(--muted);font-size:18px;max-width:42ch}
+.plan-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:28px}
+@media (max-width:560px){.plan-grid{grid-template-columns:1fr}}
+.plan{position:relative;border:1.5px solid var(--line);box-shadow:none;transition:border-color .15s,transform .15s}
+.plan:hover{transform:translateY(-3px);border-color:var(--accent)}
+.plan.featured{border:2px solid var(--accent)}
+.plan-badge{position:absolute;right:16px;top:-13px;padding:4px 10px;border-radius:999px;background:var(--accent);color:var(--accent-ink);font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.plan h3{font-size:22px;margin-bottom:6px}
+.price{font-family:var(--display);font-size:42px;font-weight:800;line-height:1;margin:14px 0 18px}
+.price small{font:600 14px var(--body);color:var(--muted)}
+.plan ul{margin:0;padding-left:20px;color:var(--muted);font-size:14px;min-height:82px}
+.plan li+li{margin-top:6px}
+.qr-card{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:100%;background:var(--soft)}
+.qr-card h3{font-size:24px;margin-bottom:6px}
+.qr-card p{color:var(--muted);font-size:14px;max-width:28ch}
+.qr{display:grid;grid-template-columns:repeat(21,5px);grid-template-rows:repeat(21,5px);gap:2px;padding:12px;background:#fff;border-radius:10px;margin:18px 0 14px;box-shadow:0 2px 8px rgba(27,36,32,.14)}
+.qr i{width:5px;height:5px;background:#1B2420}
+.qr i.off{background:transparent}
+.demo-note{font-size:12px!important;font-weight:600;color:var(--accent)!important}
+.upgrade-foot{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-top:28px}
+.selected-plan{padding:12px 16px;border-radius:12px;background:color-mix(in srgb,var(--good) 14%,transparent);color:var(--good);font-weight:600;font-size:14px}
 </style>
 
 </head>
@@ -450,7 +475,7 @@ const StrengthCard=({h,p})=>html`<div class="note s"><h4>${h}</h4><p>${p}</p></d
 const FrictionCard=({h,p})=>html`<div class="note f"><h4>${h}</h4><p>${p}</p></div>`;
 const CollaborationTips=({tips})=>html`<ol class="tips">${tips.map((t,i)=>html`<li key=${i}>${t}</li>`)}</ol>`;
 
-function ResultsDashboard({team,onEdit,onRestart}){
+function ResultsDashboard({team,onEdit,onRestart,onUpgrade}){
   const pairs=[[0,1],[0,2],[1,2]];
   const scores=pairs.map(([i,j])=>compat(team[i].mbti,team[j].mbti));
   const teamScore=Math.round(scores.reduce((a,b)=>a+b,0)/3);
@@ -460,6 +485,7 @@ function ResultsDashboard({team,onEdit,onRestart}){
       <div><p class="eyebrow">Step 2 of 2</p><h2>Your Team</h2></div>
       <div class="actions" style=${{marginTop:0}}>
         <button class="btn ghost" onClick=${onEdit}>Edit team</button>
+        <button class="btn ghost" onClick=${onUpgrade}>Add more teammates</button>
         <button class="btn" onClick=${onRestart}>New analysis</button>
       </div>
     </div>
@@ -479,6 +505,59 @@ function ResultsDashboard({team,onEdit,onRestart}){
   </section>`;
 }
 
+const QR_PATTERN=[
+  "111111100101011111111","100000101110010100001","101110100101010101101","101110101011010101101","101110100110010101101","100000101010110100001","111111101010101111111",
+  "000000001101000000000","110110111011101101101","001011001001011010010","111001111110111001111","010110010101001110100","101101111011110011011","000000001010101000000",
+  "111111101101011111111","100000101001010100001","101110101111010101101","101110100011010101101","101110101101010101101","100000101010010100001","111111101101011111111"
+];
+
+function FakeQr(){
+  return html`<div class="qr" aria-label="Demo QR code">${QR_PATTERN.join("").split("").map((v,i)=>html`<i key=${i} class=${v==="1"?"":"off"}></i>`)}</div>`;
+}
+
+function UpgradePage({onBack}){
+  const [selected,setSelected]=useState(19);
+  return html`<section>
+    <div class="head">
+      <div><p class="eyebrow">Advanced access</p><h2>Bring more people<br/>into the picture.</h2></div>
+      <button class="btn ghost" onClick=${onBack}>Back to team</button>
+    </div>
+    <div class="upgrade-hero">
+      <div class="upgrade-copy">
+        <p class="eyebrow">Unlock beyond 3 teammates</p>
+        <h2>More perspectives.<br/><em style=${{color:"var(--accent)",fontStyle:"normal"}}>Better chemistry.</em></h2>
+        <p>Choose a plan to invite more teammates and compare a fuller picture of how your team works together.</p>
+        <div class="plan-grid">
+          <div class=${"card plan "+(selected===9?"featured":"")}>
+            ${selected===9 && html`<span class="plan-badge">Selected</span>`}
+            <p class="eyebrow">Supporter</p><h3>Team Plus</h3><div class="price">$9 <small>one-time</small></div>
+            <ul><li>Add up to 5 teammates</li><li>Expanded pair matches</li><li>Shareable team summary</li></ul>
+            <button class=${"btn "+(selected===9?"":"ghost")} onClick=${()=>setSelected(9)}>${selected===9?"Selected":"Choose $9"}</button>
+          </div>
+          <div class=${"card plan "+(selected===19?"featured":"")}>
+            ${selected===19 && html`<span class="plan-badge">Selected</span>`}
+            <p class="eyebrow">Power team</p><h3>Team Pro</h3><div class="price">$19 <small>one-time</small></div>
+            <ul><li>Add up to 10 teammates</li><li>Advanced group insights</li><li>Priority feature access</li></ul>
+            <button class=${"btn "+(selected===19?"":"ghost")} onClick=${()=>setSelected(19)}>${selected===19?"Selected":"Choose $19"}</button>
+          </div>
+        </div>
+      </div>
+      <div class="card qr-card">
+        <p class="eyebrow">${selected===9?"Team Plus":"Team Pro"} · $${selected}</p>
+        <h3>Subscribe or donate</h3>
+        <p>Scan this code to support the project and unlock your selected advanced plan.</p>
+        <${FakeQr}/>
+        <p class="demo-note">DEMO QR CODE · NO REAL PAYMENT</p>
+        <p>Payment details are not connected in this prototype.</p>
+      </div>
+    </div>
+    <div class="upgrade-foot">
+      <div class="selected-plan">Selected: ${selected===9?"Team Plus":"Team Pro"} · $${selected}</div>
+      <button class="btn ghost" onClick=${onBack}>Maybe later</button>
+    </div>
+  </section>`;
+}
+
 function App(){
   const [screen,setScreen]=useState("landing");
   const [team,setTeamState]=useState(()=>{
@@ -490,7 +569,8 @@ function App(){
   return html`<main class="wrap">
     ${screen==="landing" && html`<${LandingPage} onStart=${()=>go("setup")}/>`}
     ${screen==="setup" && html`<${TeamSetup} team=${team} setTeam=${setTeam} onAnalyse=${()=>go("results")} onBack=${()=>go("landing")}/>`}
-    ${screen==="results" && html`<${ResultsDashboard} team=${team} onEdit=${()=>go("setup")} onRestart=${()=>{setTeam([{name:"",mbti:""},{name:"",mbti:""},{name:"",mbti:""}]);go("setup");}}/>`}
+    ${screen==="results" && html`<${ResultsDashboard} team=${team} onEdit=${()=>go("setup")} onUpgrade=${()=>go("upgrade")} onRestart=${()=>{setTeam([{name:"",mbti:""},{name:"",mbti:""},{name:"",mbti:""}]);go("setup");}}/>`}
+    ${screen==="upgrade" && html`<${UpgradePage} onBack=${()=>go("results")}/>`}
   </main>`;
 }
 
