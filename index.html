@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MBTI Team Match</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+:root{
+  --bg:#F4F6F1; --card:#FFFFFF; --ink:#1B2420; --muted:#5E6B64; --line:#DCE3DC;
+  --accent:#E8553D; --accent-ink:#FFFFFF; --soft:#EAEFE8;
+  --nt:#7A5BC7; --nf:#2F9E6B; --sj:#2B7FB8; --sp:#D69A12;
+  --good:#2F9E6B; --warn:#D69A12; --bad:#D2452F;
+  --shadow:0 1px 2px rgba(27,36,32,.06),0 8px 24px rgba(27,36,32,.07);
+  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --body:"Figtree",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121815; --card:#1B231F; --ink:#E9EFEA; --muted:#9AA8A0; --line:#2C3832;
+    --accent:#FF7358; --accent-ink:#1B120F; --soft:#232D28;
+    --nt:#A58BEF; --nf:#4DC48E; --sj:#5AA8DD; --sp:#F0B73A;
+    --good:#4DC48E; --warn:#F0B73A; --bad:#FF7358;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121815; --card:#1B231F; --ink:#E9EFEA; --muted:#9AA8A0; --line:#2C3832;
+  --accent:#FF7358; --accent-ink:#1B120F; --soft:#232D28;
+  --nt:#A58BEF; --nf:#4DC48E; --sj:#5AA8DD; --sp:#F0B73A;
+  --good:#4DC48E; --warn:#F0B73A; --bad:#FF7358;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55}
+.wrap{max-width:1040px;margin:0 auto;padding-inline:16px;padding-block:32px 64px}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance;letter-spacing:-.01em}
+p{margin:0}
+.eyebrow{font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.btn{font:600 16px var(--body);border:0;border-radius:999px;padding:14px 26px;background:var(--accent);color:var(--accent-ink);cursor:pointer;transition:transform .15s}
+.btn:hover{transform:translateY(-2px)}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.btn:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.card{background:var(--card);border-radius:20px;box-shadow:var(--shadow);padding:22px}
+.type{font-family:var(--mono);font-weight:700;letter-spacing:.06em}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media (max-width:760px){.grid3{grid-template-columns:1fr}}
+.stack{display:flex;flex-direction:column;gap:16px}
+
+/* landing */
+.hero{display:grid;grid-template-columns:1.2fr 1fr;gap:40px;align-items:center;padding-block:40px}
+@media (max-width:760px){.hero{grid-template-columns:1fr;gap:28px;padding-block:16px}}
+.hero h1{font-size:clamp(40px,7vw,72px);line-height:1;font-weight:800}
+.hero h1 em{font-style:normal;color:var(--accent)}
+.hero p{font-size:19px;color:var(--muted);max-width:32ch;margin-block:18px 28px}
+.tri{position:relative;aspect-ratio:1;max-width:100%;width:360px;justify-self:center}
+.tri svg{width:100%;height:100%}
+.chip{position:absolute;padding:10px 16px;border-radius:14px;color:#fff;font-family:var(--mono);font-weight:700;font-size:20px;box-shadow:var(--shadow);animation:bob 4s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-8px)}}
+@media (prefers-reduced-motion:reduce){.chip{animation:none}.btn{transition:none}}
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:8px;font-size:13px;color:var(--muted)}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:3px;background:var(--c);margin-right:6px;vertical-align:-1px}
+
+/* setup */
+.head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:24px}
+.head h2{font-size:clamp(30px,5vw,44px);font-weight:800}
+label{display:block;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:6px}
+input,select{width:100%;font:500 17px var(--body);color:var(--ink);background:var(--soft);border:1.5px solid transparent;border-radius:12px;padding:12px 14px}
+select{font-family:var(--mono);font-weight:700;letter-spacing:.06em;cursor:pointer}
+.member-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.avatar{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:20px;color:#fff;background:var(--c,var(--muted))}
+.field{margin-bottom:14px}
+.error{margin-top:18px;padding:12px 16px;border-radius:12px;background:color-mix(in srgb,var(--bad) 14%,transparent);color:var(--bad);font-weight:600}
+.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}
+.temp{font-size:12px;font-weight:600;color:var(--c)}
+
+/* results */
+.members{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media (max-width:560px){.members{grid-template-columns:1fr}}
+.member{display:flex;align-items:center;gap:14px;padding:16px 18px}
+.member b{display:block;font-size:18px;font-family:var(--display)}
+.team-score{display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:center;padding:28px;margin-block:20px 40px}
+@media (max-width:560px){.team-score{grid-template-columns:1fr;gap:14px}}
+.big{font-family:var(--display);font-weight:800;font-size:clamp(64px,12vw,112px);line-height:.9;font-variant-numeric:tabular-nums}
+.big small{font-size:.45em}
+.pill{display:inline-block;padding:5px 12px;border-radius:999px;font-size:13px;font-weight:700;background:color-mix(in srgb,var(--c) 16%,transparent);color:var(--c)}
+.bar{height:10px;border-radius:99px;background:var(--soft);overflow:hidden}
+.bar i{display:block;height:100%;border-radius:99px;background:var(--c)}
+.section{margin-top:40px}
+.section h3{font-size:26px;font-weight:700;margin-bottom:16px}
+.pair .names{font-family:var(--display);font-weight:700;font-size:19px}
+.pair .pct{font-family:var(--display);font-weight:800;font-size:48px;line-height:1;font-variant-numeric:tabular-nums;margin-block:12px 10px}
+.dims{display:flex;gap:6px;margin-block:14px}
+.dims span{flex:1;text-align:center;font-family:var(--mono);font-size:12px;padding:5px 0;border-radius:8px;background:var(--soft);color:var(--muted)}
+.dims span.same{background:color-mix(in srgb,var(--good) 18%,transparent);color:var(--good);font-weight:700}
+.kv{font-size:14px;margin-top:10px}
+.kv b{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+.note{padding:18px 20px;border-radius:16px;background:var(--card);border:1.5px solid var(--line)}
+.note h4{margin:0 0 6px;font-family:var(--display);font-size:18px}
+.note p{color:var(--muted);font-size:15px}
+.note.s h4::before{content:"+ ";color:var(--good)}
+.note.f h4::before{content:"! ";color:var(--warn)}
+.tips{counter-reset:t;list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+@media (max-width:640px){.tips{grid-template-columns:1fr}}
+.tips li{counter-increment:t;display:flex;gap:14px;align-items:flex-start;padding:16px 18px;background:var(--soft);border-radius:14px}
+.tips li::before{content:counter(t);flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--accent-ink);font-weight:700;font-size:14px}
+.disclaimer{margin-top:40px;font-size:13px;color:var(--muted)}
+</style>
+
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/htm@3.1.1/dist/htm.umd.js"></script>
+<script>
+const { useState } = React;
+const html = htm.bind(React.createElement);
+
+const TYPES = ["ISTJ","ISFJ","INFJ","INTJ","ISTP","ISFP","INFP","INTP","ESTP","ESFP","ENFP","ENTP","ESTJ","ESFJ","ENFJ","ENTJ"];
+const SAMPLE = [{name:"Ryan",mbti:"INTJ"},{name:"Alice",mbti:"ENFP"},{name:"Jason",mbti:"ISTJ"}];
+const STORE = "mbti-team-match";
+
+// Temperament group → colour token
+function group(t){
+  if(!t) return null;
+  if(t[1]==="N") return t[2]==="T" ? {c:"var(--nt)",n:"Analyst"} : {c:"var(--nf)",n:"Diplomat"};
+  return t[3]==="J" ? {c:"var(--sj)",n:"Sentinel"} : {c:"var(--sp)",n:"Explorer"};
+}
+
+// ---- Scoring (PRD §11) ----
+const DIMS = [
+  {i:0,key:"E/I",same:20,diff:12},
+  {i:1,key:"S/N",same:20,diff:8},
+  {i:2,key:"T/F",same:20,diff:10},
+  {i:3,key:"J/P",same:20,diff:6},
+];
+function compat(a,b){
+  return 20 + DIMS.reduce((s,d)=>s + (a[d.i]===b[d.i] ? d.same : d.diff),0);
+}
+function label(s){
+  if(s>=85) return {t:"Highly Aligned",c:"var(--good)"};
+  if(s>=75) return {t:"Strong Potential",c:"var(--good)"};
+  if(s>=65) return {t:"Mixed but Complementary",c:"var(--sj)"};
+  if(s>=55) return {t:"Different Working Styles",c:"var(--warn)"};
+  return {t:"Significant Style Differences",c:"var(--bad)"};
+}
+
+const SHARED = {
+  E:"Both energised by discussion, so ideas get voiced and tested quickly.",
+  I:"Both value focused, independent work and thoughtful preparation.",
+  N:"Shared big-picture thinking makes it easy to agree on vision.",
+  S:"Shared attention to facts and detail keeps the work grounded.",
+  T:"Both prefer objective, logic-first decisions, so debates stay efficient.",
+  F:"Both weigh people's feelings, creating a supportive working climate.",
+  J:"Both like plans and deadlines, so work gets finished on time.",
+  P:"Both stay flexible and adapt quickly when plans change.",
+};
+const COMPLEMENT = {
+  1:"Strategic or conceptual thinking combined with practical, hands-on detail.",
+  2:"Logical analysis balanced by awareness of people and impact.",
+  3:"Structure from one side, adaptability and fresh options from the other.",
+  0:"One brings outward energy, the other brings reflection and depth.",
+};
+const CHALLENGE = {
+  3:"Different preferences for structure versus spontaneity — deadlines may feel early to one and late to the other.",
+  1:"One focuses on the big picture, the other on concrete details — expect some talking past each other.",
+  2:"Logic-first versus people-first decisions may cause friction over feedback and priorities.",
+  0:"One thinks out loud, the other thinks before speaking — meetings may feel uneven.",
+};
+function pairText(a,b){
+  const same = DIMS.filter(d=>a[d.i]===b[d.i]);
+  const diffOrder = [3,1,2,0].filter(i=>a[i]!==b[i]);
+  // Mostly alike → lead with what they share; mostly different → lead with how they complement
+  let strength;
+  if(same.length===4) strength = "Near-identical working styles mean very little friction and fast agreement.";
+  else if(same.length===3) strength = SHARED[a[[1,3,2,0].find(i=>a[i]===b[i])]];
+  else strength = COMPLEMENT[[1,2,3,0].find(i=>a[i]!==b[i])];
+  const challenge = diffOrder.length ? CHALLENGE[diffOrder[0]]
+    : "Very similar styles can create shared blind spots — invite outside perspectives.";
+  const score = compat(a,b);
+  const interp = score>=85 ? "Naturally in sync on how work gets done."
+    : score>=75 ? "Enough common ground to move fast, with useful differences."
+    : score>=65 ? "Different approaches that can complement each other with some effort."
+    : "Quite different styles — clear agreements will matter.";
+  return {strength,challenge,interp};
+}
+
+// ---- Team-level insights ----
+function teamInsights(team){
+  const has = (i,l)=>team.some(m=>m.mbti[i]===l);
+  const mixed = i => new Set(team.map(m=>m.mbti[i])).size>1;
+  const strengths=[], friction=[], tips=[];
+
+  if(mixed(1)) strengths.push({h:"Diverse Thinking",p:"The team has both intuitive and sensing preferences, combining big-picture ideas with practical detail."});
+  else strengths.push(team[0].mbti[1]==="N"
+    ? {h:"Shared Vision",p:"Everyone leans intuitive, so the team aligns quickly on ideas, possibilities and long-term direction."}
+    : {h:"Grounded Delivery",p:"Everyone leans sensing, so the team stays realistic, detailed and focused on what works."});
+  if(mixed(2)) strengths.push({h:"Balanced Decision-Making",p:"Thinking and feeling preferences help the team weigh both logic and the impact on people."});
+  else strengths.push(team[0].mbti[2]==="T"
+    ? {h:"Clear-Headed Analysis",p:"A shared thinking preference keeps discussions objective and decisions efficient."}
+    : {h:"Strong Team Harmony",p:"A shared feeling preference builds trust, empathy and a supportive climate."});
+  if(has(3,"J")) strengths.push({h:"Strategic Execution",p:"Judging-oriented members help provide structure, milestones and follow-through."});
+  else strengths.push({h:"Adaptive Energy",p:"A perceiving-heavy team adapts quickly and stays open to better ideas late in the process."});
+
+  if(mixed(3)) friction.push({h:"Planning Style",p:"J-type members may prefer early decisions, while P-type members may want to keep options open."});
+  else if(team[0].mbti[3]==="P") friction.push({h:"Last-Minute Risk",p:"With no strong planner, deadlines can drift and decisions may stay open too long."});
+  else friction.push({h:"Rigidity",p:"Everyone likes a fixed plan, which can make pivoting uncomfortable when things change."});
+  if(mixed(0)) friction.push({h:"Communication",p:"Extroverted members may think aloud, while introverted members prefer time to process ideas first."});
+  else friction.push(team[0].mbti[0]==="E"
+    ? {h:"Airtime",p:"Three extroverts may talk over each other and leave little room for quiet reflection."}
+    : {h:"Silent Gaps",p:"Three introverts may hold back ideas, so important concerns can go unspoken."});
+  if(mixed(2)) friction.push({h:"Decision-Making",p:"T-types may focus on logic while F-types place greater weight on interpersonal considerations."});
+  else if(mixed(1)) friction.push({h:"Level of Detail",p:"N-types may jump to concepts while S-types want concrete facts and steps first."});
+
+  tips.push("Agree on deadlines, owners and responsibilities at the very start.");
+  tips.push(mixed(0)||team[0].mbti[0]==="I"
+    ? "Give everyone time to contribute — share the agenda before meetings so quieter members can prepare."
+    : "Use a round-robin so everyone gets uninterrupted time to speak.");
+  tips.push("Separate brainstorming from decision-making, so ideas are not judged too early.");
+  tips.push(mixed(2)
+    ? "When deciding, check both: “Does this make sense?” and “How will this affect people?”"
+    : "Use both written and verbal communication so nothing gets lost.");
+  return {strengths,friction,tips};
+}
+
+// ---- Components ----
+function LandingPage({onStart}){
+  const chips=[["INTJ","var(--nt)","4%","10%","0s"],["ENFP","var(--nf)","56%","2%",".8s"],["ISTJ","var(--sj)","32%","74%","1.6s"]];
+  return html`
+  <section class="hero">
+    <div>
+      <p class="eyebrow">MBTI Team Match · 3-person teams</p>
+      <h1 style=${{marginTop:12}}>Discover Your Team <em>Chemistry</em></h1>
+      <p>Enter your team's MBTI types and discover how your working styles fit together.</p>
+      <button class="btn" onClick=${onStart}>Start Analysis →</button>
+      <div class="legend" style=${{marginTop:28}}>
+        <span style=${{"--c":"var(--nt)"}}>Analysts</span>
+        <span style=${{"--c":"var(--nf)"}}>Diplomats</span>
+        <span style=${{"--c":"var(--sj)"}}>Sentinels</span>
+        <span style=${{"--c":"var(--sp)"}}>Explorers</span>
+      </div>
+    </div>
+    <div class="tri" aria-hidden="true">
+      <svg viewBox="0 0 100 100"><polygon points="20,22 80,22 50,84" fill="none" stroke="var(--line)" stroke-width="1.2" stroke-dasharray="3 3"/>
+      <text x="50" y="45" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-weight="800" font-size="14" fill="var(--accent)">78%</text>
+      <text x="50" y="53" text-anchor="middle" font-size="4" fill="var(--muted)" font-family="Figtree, sans-serif">team score</text></svg>
+      ${chips.map(([t,c,l,top,d])=>html`<div key=${t} class="chip" style=${{background:c,left:l,top,animationDelay:d}}>${t}</div>`)}
+    </div>
+  </section>`;
+}
+
+function MemberInputCard({i,m,onChange}){
+  const g = group(m.mbti);
+  return html`
+  <div class="card">
+    <div class="member-top">
+      <div class="avatar" style=${{"--c":g?g.c:"var(--muted)"}}>${(m.name.trim()[0]||(i+1)).toString().toUpperCase()}</div>
+      <span class="eyebrow">Member ${i+1}</span>
+    </div>
+    <div class="field">
+      <label for=${"name"+i}>Name</label>
+      <input id=${"name"+i} value=${m.name} placeholder="e.g. Ryan" maxLength="24"
+        onInput=${e=>onChange({...m,name:e.target.value})}/>
+    </div>
+    <div class="field">
+      <label for=${"mbti"+i}>MBTI</label>
+      <select id=${"mbti"+i} value=${m.mbti} onChange=${e=>onChange({...m,mbti:e.target.value})}>
+        <option value="">Select type…</option>
+        ${TYPES.map(t=>html`<option key=${t} value=${t}>${t}</option>`)}
+      </select>
+    </div>
+    ${g && html`<span class="temp" style=${{"--c":g.c}}>${g.n}</span>`}
+  </div>`;
+}
+
+function TeamSetup({team,setTeam,onAnalyse,onBack}){
+  const [err,setErr]=useState("");
+  const submit=()=>{
+    if(team.some(m=>!m.name.trim()||!TYPES.includes(m.mbti))){setErr("Please complete all team member details.");return;}
+    setErr(""); onAnalyse();
+  };
+  return html`
+  <section>
+    <div class="head">
+      <div><p class="eyebrow">Step 1 of 2</p><h2>Who's on the team?</h2></div>
+      <button class="btn ghost" onClick=${()=>{setTeam([{name:"",mbti:""},{name:"",mbti:""},{name:"",mbti:""}]);setErr("");}}>Clear all</button>
+    </div>
+    <div class="grid3">
+      ${team.map((m,i)=>html`<${MemberInputCard} key=${i} i=${i} m=${m}
+        onChange=${nm=>setTeam(team.map((x,j)=>j===i?nm:x))}/>`)}
+    </div>
+    ${err && html`<div class="error" role="alert">${err}</div>`}
+    <div class="actions">
+      <button class="btn" onClick=${submit}>Analyse Team →</button>
+      <button class="btn ghost" onClick=${onBack}>Back</button>
+    </div>
+  </section>`;
+}
+
+function MemberCard({m}){
+  const g=group(m.mbti);
+  return html`<div class="card member">
+    <div class="avatar" style=${{"--c":g.c}}>${m.name.trim()[0].toUpperCase()}</div>
+    <div><b>${m.name}</b><span class="type" style=${{color:g.c}}>${m.mbti}</span> <span style=${{color:"var(--muted)",fontSize:13}}>· ${g.n}</span></div>
+  </div>`;
+}
+
+function TeamScore({score}){
+  const l=label(score);
+  return html`<div class="card team-score">
+    <div class="big" style=${{color:l.c}}>${score}<small>%</small></div>
+    <div class="stack" style=${{gap:10}}>
+      <p class="eyebrow">Team Compatibility</p>
+      <div><span class="pill" style=${{"--c":l.c}}>${l.t}</span></div>
+      <div class="bar" style=${{"--c":l.c}}><i style=${{width:score+"%"}}></i></div>
+      <p style=${{color:"var(--muted)",fontSize:14}}>Average of the three pair scores. Scale runs 56–100%.</p>
+    </div>
+  </div>`;
+}
+
+function PairCompatibilityCard({a,b}){
+  const s=compat(a.mbti,b.mbti), l=label(s), t=pairText(a.mbti,b.mbti);
+  return html`<div class="card pair">
+    <div class="names">${a.name} × ${b.name}</div>
+    <div class="type" style=${{fontSize:13,color:"var(--muted)"}}>${a.mbti} · ${b.mbti}</div>
+    <div class="pct" style=${{color:l.c}}>${s}%</div>
+    <div class="bar" style=${{"--c":l.c}}><i style=${{width:s+"%"}}></i></div>
+    <div class="dims">${DIMS.map(d=>html`<span key=${d.key} class=${a.mbti[d.i]===b.mbti[d.i]?"same":""}
+      title=${a.mbti[d.i]===b.mbti[d.i]?"Same preference":"Different preference"}>${a.mbti[d.i]}/${b.mbti[d.i]}</span>`)}</div>
+    <p style=${{fontWeight:600}}>${t.interp}</p>
+    <div class="kv"><b>Strength</b>${t.strength}</div>
+    <div class="kv"><b>Potential challenge</b>${t.challenge}</div>
+  </div>`;
+}
+
+const StrengthCard=({h,p})=>html`<div class="note s"><h4>${h}</h4><p>${p}</p></div>`;
+const FrictionCard=({h,p})=>html`<div class="note f"><h4>${h}</h4><p>${p}</p></div>`;
+const CollaborationTips=({tips})=>html`<ol class="tips">${tips.map((t,i)=>html`<li key=${i}>${t}</li>`)}</ol>`;
+
+function ResultsDashboard({team,onEdit,onRestart}){
+  const pairs=[[0,1],[0,2],[1,2]];
+  const scores=pairs.map(([i,j])=>compat(team[i].mbti,team[j].mbti));
+  const teamScore=Math.round(scores.reduce((a,b)=>a+b,0)/3);
+  const ins=teamInsights(team);
+  return html`<section>
+    <div class="head">
+      <div><p class="eyebrow">Step 2 of 2</p><h2>Your Team</h2></div>
+      <div class="actions" style=${{marginTop:0}}>
+        <button class="btn ghost" onClick=${onEdit}>Edit team</button>
+        <button class="btn" onClick=${onRestart}>New analysis</button>
+      </div>
+    </div>
+    <div class="members">${team.map((m,i)=>html`<${MemberCard} key=${i} m=${m}/>`)}</div>
+    <${TeamScore} score=${teamScore}/>
+    <div class="section" style=${{marginTop:0}}><h3>Pair Matches</h3>
+      <div class="grid3">${pairs.map(([i,j])=>html`<${PairCompatibilityCard} key=${i+"-"+j} a=${team[i]} b=${team[j]}/>`)}</div>
+    </div>
+    <div class="section"><h3>Team Strengths</h3>
+      <div class="grid3">${ins.strengths.map(s=>html`<${StrengthCard} key=${s.h} ...${s}/>`)}</div></div>
+    <div class="section"><h3>Potential Friction</h3>
+      <div class="grid3">${ins.friction.map(s=>html`<${FrictionCard} key=${s.h} ...${s}/>`)}</div></div>
+    <div class="section"><h3>How to Work Better Together</h3><${CollaborationTips} tips=${ins.tips}/></div>
+    <p class="disclaimer">Scores are a simple heuristic based on four MBTI preference pairs and describe working-style alignment only — not a validated psychological measure.</p>
+  </section>`;
+}
+
+function App(){
+  const [screen,setScreen]=useState("landing");
+  const [team,setTeamState]=useState(()=>{
+    try{const s=JSON.parse(localStorage.getItem(STORE)); if(Array.isArray(s)&&s.length===3) return s;}catch(e){}
+    return SAMPLE;
+  });
+  const setTeam=t=>{setTeamState(t);try{localStorage.setItem(STORE,JSON.stringify(t));}catch(e){}};
+  const go=s=>{setScreen(s);window.scrollTo({top:0});};
+  return html`<main class="wrap">
+    ${screen==="landing" && html`<${LandingPage} onStart=${()=>go("setup")}/>`}
+    ${screen==="setup" && html`<${TeamSetup} team=${team} setTeam=${setTeam} onAnalyse=${()=>go("results")} onBack=${()=>go("landing")}/>`}
+    ${screen==="results" && html`<${ResultsDashboard} team=${team} onEdit=${()=>go("setup")} onRestart=${()=>{setTeam([{name:"",mbti:""},{name:"",mbti:""},{name:"",mbti:""}]);go("setup");}}/>`}
+  </main>`;
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(html`<${App}/>`);
+</script>
+</body>
+</html>
